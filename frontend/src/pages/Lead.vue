@@ -17,11 +17,11 @@
           <UserAvatar class="mr-2" :user="option.email" size="sm" />
         </template>
       </Autocomplete>
-      <Dropdown :options="statusDropdownOptions">
+      <Dropdown :options="statusDropdownOptions(lead.data)">
         <template #default="{ open }">
           <Button :label="lead.data.status">
             <template #prefix>
-              <IndicatorIcon :class="indicatorColor[lead.data.status]" />
+              <IndicatorIcon :class="leadStatuses[lead.data.status].color" />
             </template>
             <template #suffix
               ><FeatherIcon
@@ -146,7 +146,7 @@
                         >
                           <template #prefix>
                             <IndicatorIcon
-                              :class="indicatorColor[lead.data[field.name]]"
+                              :class="leadStatuses[lead.data[field.name]].color"
                             />
                           </template>
                         </FormControl>
@@ -191,7 +191,7 @@
                         </Autocomplete>
                         <Dropdown
                           v-else-if="field.type === 'dropdown'"
-                          :options="statusDropdownOptions"
+                          :options="statusDropdownOptions(lead.data)"
                           class="w-full flex-1"
                         >
                           <template #default="{ open }">
@@ -201,7 +201,9 @@
                             >
                               <template #prefix>
                                 <IndicatorIcon
-                                  :class="indicatorColor[lead.data[field.name]]"
+                                  :class="
+                                    leadStatuses[lead.data[field.name]].color
+                                  "
                                 />
                               </template>
                               <template #default>{{
@@ -262,7 +264,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import CommunicationArea from '@/components/CommunicationArea.vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import { TransitionPresets, useTransition } from '@vueuse/core'
-import { dateFormat, timeAgo, dateTooltipFormat } from '@/utils'
+import { dateFormat, timeAgo, dateTooltipFormat, leadStatuses, statusDropdownOptions } from '@/utils'
 import { usersStore } from '@/stores/users'
 import {
   createResource,
@@ -274,7 +276,7 @@ import {
   Tooltip,
   Avatar,
 } from 'frappe-ui'
-import { ref, computed, h, inject } from 'vue'
+import { ref, computed, inject } from 'vue'
 
 const { getUser, users } = usersStore()
 
@@ -371,52 +373,6 @@ function onTabChange(index) {
   indicatorLeft.value = selectedTab.offsetLeft
 }
 
-const statusDropdownOptions = [
-  {
-    label: 'New',
-    icon: () => h(IndicatorIcon, { class: '!text-gray-600' }),
-    onClick: () => {
-      lead.data.status = 'New'
-    },
-  },
-  {
-    label: 'Contact made',
-    icon: () => h(IndicatorIcon, { class: 'text-orange-600' }),
-    onClick: () => {
-      lead.data.status = 'Contact made'
-    },
-  },
-  {
-    label: 'Proposal made',
-    icon: () => h(IndicatorIcon, { class: '!text-blue-600' }),
-    onClick: () => {
-      lead.data.status = 'Proposal made'
-    },
-  },
-  {
-    label: 'Negotiation',
-    icon: () => h(IndicatorIcon, { class: 'text-red-600' }),
-    onClick: () => {
-      lead.data.status = 'Negotiation'
-    },
-  },
-  {
-    label: 'Converted',
-    icon: () => h(IndicatorIcon, { class: 'text-green-600' }),
-    onClick: () => {
-      lead.data.status = 'Converted'
-    },
-  },
-]
-
-const indicatorColor = {
-  New: 'text-gray-600',
-  'Contact made': 'text-orange-500',
-  'Proposal made': 'text-blue-600',
-  Negotiation: 'text-red-600',
-  Converted: 'text-green-600',
-}
-
 const detailSections = computed(() => {
   return [
     {
@@ -427,7 +383,7 @@ const detailSections = computed(() => {
           label: 'Status',
           type: 'select',
           name: 'status',
-          options: statusDropdownOptions,
+          options: statusDropdownOptions(lead.data),
         },
         {
           label: 'Lead owner',

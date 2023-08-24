@@ -11,7 +11,7 @@
             v-model="newLead[field.name]"
           >
             <template v-if="field.name == 'status'" #prefix>
-              <IndicatorIcon :class="indicatorColor[newLead[field.name]]" />
+              <IndicatorIcon :class="leadStatuses[newLead[field.name]].color" />
             </template>
           </FormControl>
           <FormControl
@@ -35,7 +35,7 @@
           </Autocomplete>
           <Dropdown
             v-else-if="field.type === 'dropdown'"
-            :options="statusDropdownOptions"
+            :options="statusDropdownOptions(newLead)"
             class="w-full flex-1"
           >
             <template #default="{ open }">
@@ -44,7 +44,7 @@
                 class="justify-between w-full"
               >
                 <template #prefix>
-                  <IndicatorIcon :class="indicatorColor[newLead[field.name]]" />
+                  <IndicatorIcon :class="leadStatuses[newLead[field.name]].color" />
                 </template>
                 <template #default>{{ newLead[field.name] }}</template>
                 <template #suffix>
@@ -67,6 +67,7 @@
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { usersStore } from '@/stores/users'
+import { leadStatuses, statusDropdownOptions } from '@/utils'
 import {
   FormControl,
   Button,
@@ -83,44 +84,6 @@ const props = defineProps({
     required: true,
   },
 })
-
-const statusDropdownOptions = [
-  {
-    label: 'New',
-    icon: () => h(IndicatorIcon, { class: '!text-gray-600' }),
-    onClick: () => {
-      newLead.status = 'New'
-    },
-  },
-  {
-    label: 'Contact made',
-    icon: () => h(IndicatorIcon, { class: 'text-orange-600' }),
-    onClick: () => {
-      newLead.status = 'Contact made'
-    },
-  },
-  {
-    label: 'Proposal made',
-    icon: () => h(IndicatorIcon, { class: '!text-blue-600' }),
-    onClick: () => {
-      newLead.status = 'Proposal made'
-    },
-  },
-  {
-    label: 'Negotiation',
-    icon: () => h(IndicatorIcon, { class: 'text-red-600' }),
-    onClick: () => {
-      newLead.status = 'Negotiation'
-    },
-  },
-  {
-    label: 'Converted',
-    icon: () => h(IndicatorIcon, { class: 'text-green-600' }),
-    onClick: () => {
-      newLead.status = 'Converted'
-    },
-  },
-]
 
 const allFields = [
   {
@@ -179,7 +142,7 @@ const allFields = [
         label: 'Status',
         name: 'status',
         type: 'select',
-        options: statusDropdownOptions,
+        options: statusDropdownOptions(props.newLead),
       },
       {
         label: 'Lead owner',
@@ -190,14 +153,6 @@ const allFields = [
     ],
   },
 ]
-
-const indicatorColor = {
-  New: 'text-gray-600',
-  'Contact made': 'text-orange-500',
-  'Proposal made': 'text-blue-600',
-  Negotiation: 'text-red-600',
-  Converted: 'text-green-600',
-}
 
 const activeAgents = computed(() => {
   const nonAgents = ['Administrator', 'Guest']
