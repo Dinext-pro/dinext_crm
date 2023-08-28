@@ -1,24 +1,19 @@
 <template>
   <svg
+    xmlns="http://www.w3.org/2000/svg"
     width="16"
     height="16"
-    viewBox="0 0 16 16"
+    viewBox="0 0 24 24"
     fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="feather feather-minimize-2"
   >
-    <path
-      d="M2.66667 9.33331H6.66667V13.3333"
-      stroke="currentColor"
-      stroke-width="1.33333"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-    <path
-      d="M13.3333 6.66669H9.33333V2.66669"
-      stroke="currentColor"
-      stroke-width="1.33333"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
+    <polyline points="4 14 10 14 10 20" />
+    <polyline points="20 10 14 10 14 4" />
+    <line x1="14" y1="10" x2="21" y2="3" />
+    <line x1="3" y1="21" x2="10" y2="14" />
   </svg>
 </template>
