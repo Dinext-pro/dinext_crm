@@ -18,7 +18,7 @@
       </div>
       <div
         class="mx-10 flex items-center gap-2 border-t py-2.5"
-        :class="[cc || bcc ? '' : 'border-b']"
+        :class="[cc || bcc ? 'border-b' : '']"
       >
         <span class="text-xs text-gray-500">TO:</span>
         <MultiselectInput
@@ -31,7 +31,7 @@
       <div
         v-if="cc"
         class="mx-10 flex items-center gap-2 py-2.5"
-        :class="bcc ? '' : 'border-b'"
+        :class="bcc ? 'border-b' : ''"
       >
         <span class="text-xs text-gray-500">CC:</span>
         <MultiselectInput
@@ -42,7 +42,7 @@
           :error-message="(value) => `${value} is an invalid email address`"
         />
       </div>
-      <div v-if="bcc" class="mx-10 flex items-center gap-2 border-b py-2.5">
+      <div v-if="bcc" class="mx-10 flex items-center gap-2 py-2.5">
         <span class="text-xs text-gray-500">BCC:</span>
         <MultiselectInput
           ref="bccInput"
@@ -55,7 +55,7 @@
     </template>
     <template v-slot:editor="{ editor }">
       <EditorContent
-        :class="[editable && 'mx-10 max-h-[50vh] overflow-y-auto py-3']"
+        :class="[editable && 'mx-10 max-h-[50vh] overflow-y-auto py-3 border-t']"
         :editor="editor"
       />
     </template>
