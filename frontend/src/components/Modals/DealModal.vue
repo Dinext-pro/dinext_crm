@@ -18,10 +18,16 @@
         </div>
       </div>
       <div class="flex flex-col gap-4">
-        <div v-for="section in allFields" :key="section.section">
-          <div class="grid grid-cols-3 gap-4 border-t pt-4">
+        <div
+          v-for="section in allFields"
+          :key="section.section"
+          class="border-t pt-4"
+        >
+          <div class="grid grid-cols-3 gap-4">
             <div v-for="field in section.fields" :key="field.name">
-              <div class="mb-2 text-sm text-gray-600">{{ field.label }}</div>
+              <div class="mb-2 text-sm text-gray-600">
+                {{ __(field.label) }}
+              </div>
               <FormControl
                 v-if="field.type === 'select'"
                 type="select"
@@ -97,7 +103,6 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
 import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
-import { createToast } from '@/utils'
 import { Tooltip, Switch, createResource } from 'frappe-ui'
 import { computed, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -113,13 +118,17 @@ const deal = reactive({
   organization: '',
   organization_name: '',
   website: '',
-  industry: '',
+  no_of_employees: '',
   territory: '',
+  annual_revenue: '',
+  industry: '',
   contact: '',
+  salutation: '',
   first_name: '',
   last_name: '',
   email: '',
   mobile_no: '',
+  gender: '',
   status: '',
   deal_owner: '',
 })
