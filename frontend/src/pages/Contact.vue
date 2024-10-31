@@ -195,11 +195,6 @@
     doctype="Contact"
     @reload="() => fieldsLayout.reload()"
   />
-  <QuickEntryModal
-    v-if="showQuickEntryModal"
-    v-model="showQuickEntryModal"
-    doctype="Contact"
-  />
   <AddressModal v-model="showAddressModal" v-model:address="_address" />
 </template>
 
@@ -216,7 +211,6 @@ import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import DealsListView from '@/components/ListViews/DealsListView.vue'
 import SidePanelModal from '@/components/Settings/SidePanelModal.vue'
 import AddressModal from '@/components/Modals/AddressModal.vue'
-import QuickEntryModal from '@/components/Modals/QuickEntryModal.vue'
 import {
   dateFormat,
   dateTooltipFormat,
@@ -261,7 +255,6 @@ const router = useRouter()
 
 const showAddressModal = ref(false)
 const showSidePanelModal = ref(false)
-const showQuickEntryModal = ref(false)
 const _contact = ref({})
 const _address = ref({})
 
