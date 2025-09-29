@@ -17,6 +17,7 @@ class FacebookLeadFormQuestion(Document):
 		id: DF.Data | None
 		key: DF.Data
 		label: DF.Data | None
+		mapped_to_crm_field: DF.Autocomplete | None
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
