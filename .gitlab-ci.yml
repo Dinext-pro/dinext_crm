@@ -1,0 +1,10 @@
+# Minimal CI so GitLab "Pipelines must succeed" can pass.
+# Platform fork placeholder (same pattern as dinext_wiki). Full pair/smoke
+# checks live in dinext_control_center landscapes and release process.
+stages: [check]
+
+noop:
+  stage: check
+  tags: [dinext, validation, docker]
+  script:
+    - echo "dinext_crm CI placeholder OK"
