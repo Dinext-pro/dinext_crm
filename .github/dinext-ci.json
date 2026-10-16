@@ -1,0 +1,8 @@
+{
+  "app": "crm",
+  "package_dir": "crm",
+  "mode": "repository",
+  "gitflow": false,
+  "frontend_tests": true,
+  "skip_test_records": false
+}
