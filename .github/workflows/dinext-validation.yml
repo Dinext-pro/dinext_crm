@@ -21,3 +21,6 @@ jobs:
       support_ref: main
       mode: repository
       frontend_tests: true
+      privacy_baselines: ${{ vars.DINEXT_PRIVACY_BASELINES }}
+    secrets:
+      DINEXT_PRIVACY_DENYLIST: ${{ secrets.DINEXT_PRIVACY_DENYLIST }}
