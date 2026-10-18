@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex p-3 items-center justify-between cursor-pointer hover:bg-surface-sidebar rounded"
+    class="flex p-3 items-center justify-between cursor-pointer hover:bg-surface-sidebar rounded-4"
   >
     <div class="w-7/12" @click="updateStep('view', data)">
       <div class="text-base-medium text-ink-gray-7">{{ data.name }}</div>
@@ -14,7 +14,7 @@
     <div class="w-3/12">
       <select
         v-model="localData.priority"
-        class="w-full h-7 text-base hover:bg-surface-gray-3 rounded-md p-0 pl-2 pr-5 bg-transparent -ml-2 border-0 text-ink-gray-8 focus-visible:!ring-0 bg-none truncate"
+        class="w-full h-7 text-base hover:bg-surface-gray-3 rounded-5 p-0 pl-2 pr-5 bg-transparent -ml-2 border-0 text-ink-gray-8 focus-visible:!ring-0 bg-none truncate"
         @update:modelValue="onPriorityChange"
         @change="onPriorityChange"
       >
@@ -33,12 +33,12 @@
         :modelValue="!data.disabled"
         @update:modelValue="onToggle"
       />
-      <Dropdown placement="right" :options="dropdownOptions">
-        <Button
-          icon="lucide-more-horizontal"
-          variant="ghost"
-          @click="isConfirmingDelete = false"
-        />
+      <Dropdown
+        align="end"
+        :options="dropdownOptions"
+        @update:open="(open) => open && (isConfirmingDelete = false)"
+      >
+        <Button icon="lucide-more-horizontal" variant="ghost" />
       </Dropdown>
     </div>
   </div>
@@ -78,7 +78,7 @@ import {
   Switch,
   toast,
 } from 'frappe-ui'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry'
 import { inject, ref, reactive, watch } from 'vue'
 import { ConfirmDelete } from '../../../utils'
 
@@ -123,7 +123,7 @@ const deleteAssignmentRule = () => {
     onSuccess: () => {
       assignmentRulesList.reload()
       isConfirmingDelete.value = false
-      toast.success(__('Assignment Rule Deleted'))
+      toast.success(__('Assignment rule deleted'))
     },
     auto: true,
   })
@@ -138,7 +138,7 @@ const dropdownOptions = [
         name: props.data.name + ' (Copy)',
       }
     },
-    icon: 'copy',
+    icon: 'lucide-copy',
   },
   ...ConfirmDelete({
     onConfirmDelete: () => deleteAssignmentRule(),
@@ -155,7 +155,7 @@ const duplicate = () => {
     },
     onSuccess: (data) => {
       assignmentRulesList.reload()
-      toast.success(__('Assignment Rule Duplicated'))
+      toast.success(__('Assignment rule duplicated'))
       duplicateDialog.value.show = false
       duplicateDialog.value.name = ''
       updateStep('view', data)
@@ -188,7 +188,7 @@ const setAssignmentRuleValue = (key, value, fieldName = undefined) => {
     },
     onSuccess: () => {
       assignmentRulesList.reload()
-      toast.success(__('Assignment Rule {0} Updated', [fieldName || key]))
+      toast.success(__('Assignment rule {0} updated', [fieldName || key]))
     },
     auto: true,
   })

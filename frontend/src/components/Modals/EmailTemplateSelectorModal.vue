@@ -20,34 +20,35 @@
       </div>
       <div
         v-if="filteredTemplates.length"
-        class="mt-4 grid max-h-[560px] sm:grid-cols-3 gris-cols-1 gap-2 overflow-y-auto"
+        class="mt-4 grid max-h-[560px] sm:grid-cols-3 grid-cols-1 gap-2 overflow-y-auto"
       >
         <div
           v-for="template in filteredTemplates"
           :key="template.name"
-          class="flex h-56 cursor-pointer flex-col gap-2 rounded-lg border p-3 hover:bg-surface-gray-2"
+          class="flex h-56 cursor-pointer flex-col gap-2 rounded-6 border border-outline-gray-2 p-3 hover:bg-surface-gray-2"
           @click="emit('apply', template)"
         >
-          <div class="border-b pb-2 text-base-semibold">
+          <div
+            class="border-b border-outline-gray-2 pb-2 text-base-semibold text-ink-gray-8"
+          >
             {{ template.name }}
           </div>
           <div v-if="template.subject" class="text-sm text-ink-gray-5">
             {{ __('Subject: {0}', [template.subject]) }}
           </div>
-          <TextEditor
+          <!-- content is passed through sanitizeHTML() (DOMPurify) before rendering, so v-html is safe here -->
+          <!-- eslint-disable vue/no-v-html -->
+          <div
             v-if="template.use_html && template.response_html"
-            :content="template.response_html"
-            :editable="false"
-            editor-class="!prose-sm max-w-none !text-sm text-ink-gray-5 focus:outline-none"
-            class="flex-1 overflow-hidden"
+            class="prose-f prose-sm max-w-none !text-sm text-ink-gray-5 flex-1 overflow-hidden"
+            v-html="sanitizeHTML(template.response_html)"
           />
-          <TextEditor
+          <div
             v-else-if="template.response"
-            :content="template.response"
-            :editable="false"
-            editor-class="!prose-sm max-w-none !text-sm text-ink-gray-5 focus:outline-none"
-            class="flex-1 overflow-hidden"
+            class="prose-f prose-sm max-w-none !text-sm text-ink-gray-5 flex-1 overflow-hidden"
+            v-html="sanitizeHTML(template.response)"
           />
+          <!-- eslint-enable vue/no-v-html -->
         </div>
       </div>
       <div v-else class="mt-2">
@@ -65,7 +66,8 @@
 <script setup>
 import { showSettings, activeSettingsPage } from '@/composables/settings'
 import { useBroadcast } from '@/composables/useBroadcast'
-import { TextEditor, createListResource } from 'frappe-ui'
+import { createListResource } from 'frappe-ui'
+import { sanitizeHTML } from '@/utils'
 import { ref, computed, nextTick, watch, onMounted } from 'vue'
 
 const props = defineProps({
@@ -130,5 +132,5 @@ const filteredTemplates = computed(() => {
   )
 })
 
-watch(show, (value) => value && nextTick(() => searchInput.value?.el?.focus()))
+watch(show, (value) => value && nextTick(() => searchInput.value?.focus()))
 </script>

@@ -18,7 +18,7 @@
         <Badge
           v-if="isDirty"
           :variant="'subtle'"
-          :theme="'orange'"
+          :theme="'amber'"
           size="sm"
           :label="__('Not Saved')"
         />
@@ -62,11 +62,10 @@
         </div>
         <div class="flex flex-col gap-1.5">
           <FormLabel :label="__('Priority')" />
-          <Popover>
-            <template #target="{ togglePopover }">
+          <Popover bare>
+            <template #trigger>
               <div
-                class="flex items-center justify-between text-base rounded h-7 py-1.5 pl-2 pr-2 border border-outline-gray-2 bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus:bg-surface-base focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full dark:[color-scheme:dark] cursor-default"
-                @click="togglePopover()"
+                class="flex items-center justify-between text-base rounded-4 h-7 py-1.5 pl-2 pr-2 border border-outline-gray-2 bg-surface-gray-2 placeholder-ink-gray-4 hover:border-outline-elevation-2 hover:bg-surface-gray-3 focus:bg-surface-base focus:border-outline-gray-4 focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-3 text-ink-gray-8 transition-colors w-full dark:[color-scheme:dark] cursor-default"
               >
                 <div>
                   {{
@@ -78,18 +77,18 @@
                 <span class="lucide-chevron-down size-4" aria-hidden="true" />
               </div>
             </template>
-            <template #body="{ togglePopover }">
+            <template #default="{ close }">
               <div
-                class="p-1 text-ink-gray-6 top-1 absolute bg-white shadow-2xl rounded w-[--reka-popper-anchor-width]"
+                class="p-1 text-ink-gray-6 top-1 absolute bg-white shadow-2xl rounded-4 w-[--reka-popper-anchor-width]"
               >
                 <div
                   v-for="option in priorityOptions"
                   :key="option.value"
-                  class="p-2 cursor-pointer hover:bg-surface-gray-1 text-base flex items-center justify-between rounded"
+                  class="p-2 cursor-pointer hover:bg-surface-gray-1 text-base flex items-center justify-between rounded-4"
                   @click="
                     () => {
                       assignmentRuleData.priority = option.value
-                      togglePopover()
+                      close()
                     }
                   "
                 >
@@ -159,8 +158,8 @@
               >
             </span>
             <div v-if="isOldSla && step.data">
-              <Popover trigger="hover" :hoverDelay="0.25" placement="top-end">
-                <template #target>
+              <HoverCard :hover-delay="250" side="top" align="end">
+                <template #trigger>
                   <div
                     class="text-sm text-ink-gray-6 flex gap-1 cursor-default text-nowrap items-center"
                   >
@@ -168,21 +167,21 @@
                     <span class="lucide-info size-4" aria-hidden="true" />
                   </div>
                 </template>
-                <template #body-main>
+                <template #default>
                   <div
-                    class="text-sm text-ink-gray-6 p-2 bg-white rounded-md max-w-96 text-wrap whitespace-pre-wrap leading-5"
+                    class="text-sm text-ink-gray-6 p-2 bg-white rounded-5 max-w-96 text-wrap whitespace-pre-wrap leading-5"
                   >
                     <code>{{ assignmentRuleData.assignCondition }}</code>
                   </div>
                 </template>
-              </Popover>
+              </HoverCard>
             </div>
           </div>
         </div>
         <div class="mt-5">
           <div
             v-if="!useNewUI && assignmentRuleData.assignCondition"
-            class="flex flex-col gap-3 items-center text-center text-ink-gray-7 text-sm mb-2 border border-outline-gray-2 rounded-md p-3 py-4"
+            class="flex flex-col gap-3 items-center text-center text-ink-gray-7 text-sm mb-2 border border-outline-gray-2 rounded-5 p-3 py-4"
           >
             <span class="text-p-sm">
               {{ __('Conditions for this rule were created from') }}
@@ -196,7 +195,7 @@
               }}
             </span>
             <Button
-              :label="__('I understand, Add Conditions')"
+              :label="__('I understand, add conditions')"
               variant="subtle"
               theme="gray"
               @click="useNewUI = true"
@@ -243,8 +242,8 @@
                 isOldSla && step.data && assignmentRuleData.unassignCondition
               "
             >
-              <Popover trigger="hover" :hoverDelay="0.25" placement="top-end">
-                <template #target>
+              <HoverCard :hover-delay="250" side="top" align="end">
+                <template #trigger>
                   <div
                     class="text-sm text-ink-gray-6 flex gap-1 cursor-default text-nowrap items-center"
                   >
@@ -252,21 +251,21 @@
                     <span class="lucide-info size-4" aria-hidden="true" />
                   </div>
                 </template>
-                <template #body-main>
+                <template #default>
                   <div
-                    class="text-sm text-ink-gray-6 p-2 bg-white rounded-md max-w-96 text-wrap whitespace-pre-wrap leading-5"
+                    class="text-sm text-ink-gray-6 p-2 bg-white rounded-5 max-w-96 text-wrap whitespace-pre-wrap leading-5"
                   >
                     <code>{{ assignmentRuleData.unassignCondition }}</code>
                   </div>
                 </template>
-              </Popover>
+              </HoverCard>
             </div>
           </div>
         </div>
         <div class="mt-5">
           <div
             v-if="!useNewUI && assignmentRuleData.unassignCondition"
-            class="flex flex-col gap-3 items-center text-center text-ink-gray-7 text-sm mb-2 border border-outline-gray-2 rounded-md p-3 py-4"
+            class="flex flex-col gap-3 items-center text-center text-ink-gray-7 text-sm mb-2 border border-outline-gray-2 rounded-5 p-3 py-4"
           >
             <span class="text-p-sm">
               {{ __('Conditions for this rule were created from') }}
@@ -280,7 +279,7 @@
               }}
             </span>
             <Button
-              :label="__('I understand, Add Conditions')"
+              :label="__('I understand, add conditions')"
               variant="subtle"
               theme="gray"
               @click="useNewUI = true"
@@ -318,13 +317,6 @@
   <div v-else class="flex items-center h-full justify-center">
     <LoadingIndicator class="w-4" />
   </div>
-  <ConfirmDialog
-    v-model="showConfirmDialog.show"
-    :title="showConfirmDialog.title"
-    :message="showConfirmDialog.message"
-    :onConfirm="showConfirmDialog.onConfirm"
-    :onCancel="() => (showConfirmDialog.show = false)"
-  />
 </template>
 
 <script setup>
@@ -336,28 +328,22 @@ import {
   ErrorMessage,
   FormControl,
   FormLabel,
+  HoverCard,
   LoadingIndicator,
   Popover,
   Select,
   Switch,
   toast,
-  ConfirmDialog,
+  dialog,
 } from 'frappe-ui'
-import { useTelemetry } from 'frappe-ui/frappe'
-import {
-  onMounted,
-  onUnmounted,
-  ref,
-  inject,
-  watch,
-  provide,
-  computed,
-} from 'vue'
+import { useTelemetry } from '@framework/ui/telemetry'
+import { onUnmounted, ref, inject, watch, provide, computed } from 'vue'
 import AssignmentRulesSection from './AssignmentRulesSection.vue'
 import AssignmentSchedule from './AssignmentSchedule.vue'
 import AssigneeRules from './AssigneeRules.vue'
 import { globalStore } from '@/stores/global'
 import { disableSettingModalOutsideClick } from '@/composables/settings'
+import { useUnsavedChangesWarning } from '@/composables/useUnsavedChangesWarning'
 import { convertToConditions, validateConditions } from '@/utils'
 
 const isDirty = ref(false)
@@ -368,12 +354,6 @@ const { capture } = useTelemetry()
 const step = inject('step')
 const { $dialog } = globalStore()
 
-const showConfirmDialog = ref({
-  show: false,
-  title: '',
-  message: '',
-  onConfirm: () => {},
-})
 const useNewUI = ref(true)
 const isOldSla = ref(false)
 const documentType = computed(() =>
@@ -434,11 +414,11 @@ const validateAssignmentRule = (key, skipConditionCheck = false) => {
         assignmentRuleErrors.value.assignCondition =
           assignmentRuleData.value.assignConditionJson?.length > 0
             ? ''
-            : __('Assign Condition is required')
+            : __('Assign condition is required')
 
         if (!validateConditions(assignmentRuleData.value.assignConditionJson)) {
           assignmentRuleErrors.value.assignConditionError = __(
-            'Assign Conditions are invalid',
+            'Assign conditions are invalid',
           )
         } else {
           assignmentRuleErrors.value.assignConditionError = ''
@@ -454,7 +434,7 @@ const validateAssignmentRule = (key, skipConditionCheck = false) => {
           !validateConditions(assignmentRuleData.value.unassignConditionJson)
         ) {
           assignmentRuleErrors.value.unassignConditionError = __(
-            'Unassign Conditions are invalid',
+            'Unassign conditions are invalid',
           )
         } else {
           assignmentRuleErrors.value.unassignConditionError = ''
@@ -572,7 +552,7 @@ if (!step.value.data) {
 }
 
 const goBack = () => {
-  if (isDirty.value && !showConfirmDialog.value.show) {
+  if (isDirty.value) {
     $dialog({
       title: __('Unsaved Changes'),
       message: __(
@@ -583,7 +563,7 @@ const goBack = () => {
         {
           label: __('Go Back'),
           variant: 'solid',
-          onClick: (close) => {
+          onClick: ({ close }) => {
             updateStep('list', null)
             close()
           },
@@ -593,7 +573,6 @@ const goBack = () => {
     return
   }
   updateStep('list', null)
-  showConfirmDialog.value.show = false
 }
 
 const saveAssignmentRule = () => {
@@ -637,17 +616,13 @@ const saveAssignmentRule = () => {
   }
   if (step.value.data) {
     if (isOldSla.value && useNewUI.value) {
-      showConfirmDialog.value = {
-        show: true,
+      dialog.confirm({
         title: __('Confirm Overwrite'),
         message: __(
           'Your old condition will be overwritten. Are you sure you want to save?',
         ),
-        onConfirm: () => {
-          updateAssignmentRule()
-          showConfirmDialog.value.show = false
-        },
-      }
+        onConfirm: () => updateAssignmentRule(),
+      })
       return
     }
     updateAssignmentRule()
@@ -700,7 +675,7 @@ const createAssignmentRule = () => {
           capture('assignment_rule_created', {
             doctype: assignmentRuleData.value.documentType,
           })
-          toast.success(__('Assignment Rule Created'))
+          toast.success(__('Assignment rule created'))
         })
       updateStep('view', data)
     },
@@ -782,7 +757,7 @@ const updateAssignmentRule = async () => {
     getAssignmentRuleData.reload()
   }
   isLoading.value = false
-  toast.success(__('Assignment Rule Updated'))
+  toast.success(__('Assignment rule updated'))
 }
 
 watch(
@@ -799,20 +774,11 @@ watch(
   { deep: true },
 )
 
-const beforeUnloadHandler = (event) => {
-  if (!isDirty.value) return
-  event.preventDefault()
-  event.returnValue = true
-}
-
-onMounted(() => {
-  addEventListener('beforeunload', beforeUnloadHandler)
-})
+useUnsavedChangesWarning(() => isDirty.value)
 
 onUnmounted(() => {
   resetAssignmentRuleErrors()
   resetAssignmentRuleData()
-  removeEventListener('beforeunload', beforeUnloadHandler)
   disableSettingModalOutsideClick.value = false
 })
 </script>

@@ -1,20 +1,38 @@
 <template>
-  <TextEditor
-    :content="value"
+  <Editor
+    v-model="content"
+    :extensions="extensions"
     :placeholder="placeholder"
     :editable="!disabled"
-    :editor-class="editorClasses"
-    :fixed-menu="disabled ? false : fixedMenu"
-    :bubble-menu="bubbleMenu"
-    v-bind="$attrs"
+    :upload-function="(file) => uploadFile(file)"
     @change="onContentChange"
     @blur="onBlur"
-  />
+  >
+    <EditorFixedMenu
+      v-if="fixedMenu && !disabled"
+      :items="toolbar"
+      class="w-full overflow-x-auto rounded-t-6 border border-outline-gray-2 p-1"
+    />
+    <EditorBubbleMenu v-if="bubbleMenu" :items="bubbleToolbar" />
+    <EditorContent :class="editorClasses" />
+  </Editor>
 </template>
 
 <script setup>
-import { TextEditor } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import {
+  Editor,
+  EditorContent,
+  EditorFixedMenu,
+  EditorBubbleMenu,
+} from 'frappe-ui/editor'
+import {
+  buildEditorExtensions,
+  formToolbar,
+  bubbleToolbar,
+  uploadFile,
+} from '@/components/editor/config'
+import { usersStore } from '@/stores/users'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   value: { type: String, default: '' },
@@ -32,7 +50,10 @@ const props = defineProps({
     validator: (v) => ['sm', 'md', 'lg'].includes(v),
   },
   fixedMenu: { type: Boolean, default: true },
+  toolbar: { type: Array, default: () => formToolbar },
   bubbleMenu: { type: Boolean, default: false },
+  // lets people @mention teammates
+  mentions: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['change'])
@@ -42,11 +63,11 @@ const editorClasses = computed(() => {
 
   const variantMap = {
     outline: props.disabled
-      ? 'border border-t rounded-lg bg-surface-base'
-      : 'border border-t-0 rounded-b-lg bg-surface-base',
+      ? 'border border-t rounded-6 bg-surface-base'
+      : 'border border-t-0 rounded-b-6 bg-surface-base',
     subtle: props.disabled
-      ? 'border border-t rounded-lg bg-surface-gray-2'
-      : 'border border-t-0 rounded-b-lg bg-surface-gray-2',
+      ? 'border border-t rounded-6 bg-surface-gray-2'
+      : 'border border-t-0 rounded-b-6 bg-surface-gray-2',
     ghost: 'bg-transparent',
   }
   const variantClass = variantMap[props.variant]
@@ -75,17 +96,39 @@ const editorClasses = computed(() => {
   ]
 })
 
-const latestContent = ref(props.value)
+const { users } = usersStore()
+
+const mentionItems = computed(
+  () =>
+    users.data?.crmUsers
+      ?.filter((user) => user.enabled)
+      .map((user) => ({
+        value: user.name,
+        label: user.full_name?.trim() || user.name,
+      })) || [],
+)
+
+const extensions = buildEditorExtensions(
+  props.mentions ? { mentions: () => mentionItems.value } : {},
+)
+
+const content = ref(props.value ?? '')
 const isDirty = ref(false)
 
+watch(
+  () => props.value,
+  (val) => {
+    content.value = val ?? ''
+  },
+)
+
 function onContentChange(val) {
-  latestContent.value = val
   if (val !== (props.value ?? '')) isDirty.value = true
 }
 
 function onBlur() {
   if (!isDirty.value) return
   isDirty.value = false
-  emit('change', latestContent.value)
+  emit('change', content.value)
 }
 </script>

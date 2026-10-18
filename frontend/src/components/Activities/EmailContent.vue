@@ -8,16 +8,20 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useColorScheme } from 'frappe-ui'
+import {
+  DARK_SURFACE,
+  parseRgb,
+  toCss,
+  blend,
+  darkModeBackground,
+  darkModeText,
+} from '@/utils/emailColors'
+import emailContentStyles from './emailContent.css?inline'
 
 const props = defineProps({
   content: { type: String, required: true },
 })
-
-const files = import.meta.glob('/src/index.css', {
-  eager: true,
-  query: '?inline',
-})
-const css = files['/src/index.css'].default
 
 const iframeRef = ref(null)
 const _content = ref(props.content)
@@ -109,125 +113,97 @@ const htmlContent = `
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    ${css}
-    :root {
-      --bg-surface-gray-3: #ededed;
-      --bg-surface-gray-4: #e2e2e2;
-    }
-    [data-theme='dark'] {
-      --bg-surface-gray-3: #343434;
-      --bg-surface-gray-4: #424242;
-    }
-
-    .replied-content .collapse {
-      margin: 10px 0 10px 0;
-      visibility: visible;
-      cursor: pointer;
-      display: flex;
-      font-size: larger;
-      font-weight: 700;
-      height: 12px;
-      line-height: 0.1;
-      background: var(--bg-surface-gray-3);
-      width: 23px;
-      justify-content: center;
-      border-radius: 5px;
-    }
-
-    .replied-content .collapse:hover {
-      background: var(--bg-surface-gray-4);
-    }
-
-    .replied-content .collapse + input {
-      display: none;
-    }
-    .replied-content .collapse + input + div {
-      display: none;
-    }
-    .replied-content .collapse + input:checked + div {
-      display: block;
-    }
-
-    .email-content {
-        word-break: break-word;
-    }
-    .email-content
-        :is(:where(table):not(:where([class~='not-prose'], [class~='not-prose']
-            *))) {
-    table-layout: auto;
-    }
-
-    .email-content
-        :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-    width: unset;
-    table-layout: auto;
-    text-align: unset;
-    margin-top: unset;
-    margin-bottom: unset;
-    font-size: unset;
-    line-height: unset;
-    }
-
-    /* tr */
-
-    .email-content
-        :where(tbody tr):not(:where([class~='not-prose'], [class~='not-prose']
-            *)) {
-    border-bottom-width: 0;
-    border-bottom-color: transparent;
-    }
-
-    /* td */
-
-    .email-content
-        :is(:where(td):not(:where([class~='not-prose'], [class~='not-prose'] *))) {
-    position: unset;
-    border-width: 0;
-    border-color: transparent;
-    padding: 0;
-    }
-
-    .email-content
-        :where(tbody td):not(:where([class~='not-prose'], [class~='not-prose']
-            *)) {
-    vertical-align: revert;
-    }
-
-    /* image */
-    .email-content
-        :is(:where(img):not(:where([class~='not-prose'], [class~='not-prose']
-            *))) {
-    border-width: 0;
-    }
-
-    .email-content
-        :where(img):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-    margin: 0;
-    }
-
-    /* before & after */
-
-    .email-content
-        :where(blockquote
-        p:first-of-type):not(:where([class~='not-prose'], [class~='not-prose']
-            *))::before {
-    content: none;
-    }
-
-    .email-content
-        :where(blockquote
-        p:last-of-type):not(:where([class~='not-prose'], [class~='not-prose']
-            *))::after {
-    content: none;
-    }
-  </style>
+  <style>${emailContentStyles}</style>
 </head>
 <body>
     <div ref="emailContentRef" class="email-content prose-f">${_content.value}</div>
 </body>
 </html>
 `
+
+const { resolvedColorScheme } = useColorScheme()
+
+const darkModeColors = []
+
+function applyColorScheme() {
+  const html = iframeRef.value?.contentDocument?.documentElement
+  if (!html) return
+  html.setAttribute('data-theme', resolvedColorScheme.value)
+
+  const dark = resolvedColorScheme.value === 'dark'
+  for (const { el, property, original, darkColor } of darkModeColors) {
+    if (dark) el.style.setProperty(property, darkColor, 'important')
+    else if (original.value)
+      el.style.setProperty(property, original.value, original.priority)
+    else el.style.removeProperty(property)
+  }
+}
+
+watch(resolvedColorScheme, applyColorScheme)
+
+const BORDER_SIDES = ['top', 'right', 'bottom', 'left']
+
+// Runs once while the iframe is still in light mode, so computed colors are the
+// email's own. Inherited text is checked too wherever the background changes.
+function collectDarkModeColors(emailContent) {
+  darkModeColors.length = 0
+  const view = emailContent.ownerDocument.defaultView
+  const darkBackgrounds = new Map([[emailContent, DARK_SURFACE]])
+
+  function backgroundInDarkMode(el) {
+    if (!darkBackgrounds.has(el)) {
+      const own = parseRgb(view.getComputedStyle(el).backgroundColor)
+      const behind = backgroundInDarkMode(el.parentElement)
+      const visible = own?.a > 0 ? darkModeBackground(own) ?? own : null
+      darkBackgrounds.set(el, visible ? blend(visible, behind) : behind)
+    }
+    return darkBackgrounds.get(el)
+  }
+
+  function add(el, property, darkColor) {
+    darkModeColors.push({
+      el,
+      property,
+      darkColor: toCss(darkColor),
+      original: {
+        value: el.style.getPropertyValue(property),
+        priority: el.style.getPropertyPriority(property),
+      },
+    })
+  }
+
+  for (const el of emailContent.querySelectorAll(
+    '[style], font[color], [bgcolor]',
+  )) {
+    const computed = view.getComputedStyle(el)
+    const background = backgroundInDarkMode(el)
+    let backgroundChanged = false
+
+    if (el.style.backgroundColor || el.getAttribute('bgcolor')) {
+      const original = parseRgb(computed.backgroundColor)
+      const dark = original && darkModeBackground(original)
+      if (dark) {
+        add(el, 'background-color', dark)
+        backgroundChanged = true
+      }
+    }
+
+    if (el.style.color || el.getAttribute('color') || backgroundChanged) {
+      const original = parseRgb(computed.color)
+      const dark = original && darkModeText(original, background)
+      if (dark) add(el, 'color', dark)
+    }
+
+    for (const side of BORDER_SIDES) {
+      if (!el.style.getPropertyValue(`border-${side}-style`)) continue
+      const original = parseRgb(
+        computed.getPropertyValue(`border-${side}-color`),
+      )
+      const dark = original && darkModeText(original, background)
+      if (dark) add(el, `border-${side}-color`, dark)
+    }
+  }
+}
 
 watch(iframeRef, (iframe) => {
   if (iframe) {
@@ -236,8 +212,8 @@ watch(iframeRef, (iframe) => {
         iframe.contentWindow.document.querySelector('.email-content')
       let parent = emailContent.closest('html')
 
-      let theme = document.documentElement.getAttribute('data-theme')
-      parent.setAttribute('data-theme', theme)
+      collectDarkModeColors(emailContent)
+      applyColorScheme()
 
       iframe.style.height = parent.offsetHeight + 1 + 'px'
 

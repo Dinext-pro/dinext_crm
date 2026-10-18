@@ -1,5 +1,6 @@
 .DS_Store
 *.pyc
+*.local.md
 *.egg-info
 *.swp
 __pycache__
@@ -25,3 +26,8 @@ CLAUDE.md
 AGENTS.md
 .claude
 .pi
+.patch
+
+# Local browser-test output
+cypress/screenshots/
+cypress/videos/

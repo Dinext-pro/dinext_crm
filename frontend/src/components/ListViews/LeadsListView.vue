@@ -24,7 +24,7 @@
         v-for="column in columns"
         :key="column.key"
         :item="column"
-        @columnWidthUpdated="onColumnWidthUpdated"
+        @columnWidthUpdated="(e) => onColumnWidthUpdated(e, column)"
       >
         <Button
           v-if="column.key == '_liked_by'"
@@ -40,7 +40,7 @@
       </ListHeaderItem>
     </ListHeader>
     <ListRows
-      v-slot="{ idx, column, item, row }"
+      v-slot="{ idx, column, item, row, isVisited }"
       :rows="rows"
       doctype="CRM Lead"
     >
@@ -53,6 +53,9 @@
             <MultipleAvatar
               :avatars="item"
               size="sm"
+              :label-class="
+                isVisited ? 'text-ink-gray-6' : 'font-medium text-ink-gray-9'
+              "
               @click="
                 (event) =>
                   emit('applyFilter', {
@@ -102,6 +105,9 @@
               ].includes(column.key)
             "
             class="truncate text-base"
+            :class="
+              isVisited ? 'text-ink-gray-6' : 'font-medium text-ink-gray-9'
+            "
             @click="
               (event) =>
                 emit('applyFilter', {
@@ -130,7 +136,15 @@
             >
               <HeartIcon
                 class="h-4 w-4"
-                :class="isLiked(item) ? 'fill-red-500 text-red-500' : ''"
+                :class="
+                  isLiked(item)
+                    ? isVisited
+                      ? 'fill-red-400 text-red-400'
+                      : 'fill-red-500 text-red-500'
+                    : isVisited
+                      ? 'text-ink-gray-6'
+                      : 'text-ink-gray-9'
+                "
               />
             </Button>
           </div>
@@ -184,6 +198,9 @@
           <div
             v-else-if="label"
             class="truncate text-base"
+            :class="
+              isVisited ? 'text-ink-gray-6' : 'font-medium text-ink-gray-9'
+            "
             @click="
               (event) =>
                 emit('applyFilter', {
@@ -232,17 +249,15 @@ import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
 import { isTranslatable, formatDuration } from '@/utils'
+import { Avatar, Dropdown, Tooltip } from 'frappe-ui'
 import {
-  Avatar,
   ListView,
   ListHeader,
   ListHeaderItem,
   ListSelectBanner,
   ListRowItem,
   ListFooter,
-  Dropdown,
-  Tooltip,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'

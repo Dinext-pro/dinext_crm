@@ -1,0 +1,7 @@
+{
+  "repository": "frappe/frappe",
+  "commit": "4515014c87ece6cb20ee91d2cfb121c5cbd1ff4a",
+  "subdirectory": "ui",
+  "license": "MIT",
+  "purpose": "Pinned client-side CRM build dependency; no server-side Frappe code."
+}

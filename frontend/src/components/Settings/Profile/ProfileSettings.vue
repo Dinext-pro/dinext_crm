@@ -20,7 +20,7 @@
                 />
                 <Tooltip
                   :hoverDelay="0"
-                  placement="bottom"
+                  side="bottom"
                   :text="profileTooltipText"
                 >
                   <div
@@ -175,7 +175,7 @@ const fullName = computed({
 
 function editFullName() {
   editName.value = true
-  nextTick(() => fullNameRef.value?.el?.focus())
+  nextTick(() => fullNameRef.value?.focus())
 }
 
 const isDirty = computed(() => {
@@ -191,7 +191,7 @@ function save() {
   user.save.submit(null, {
     onSuccess: () => {
       editName.value = false
-      toast.success(__('Profile Updated Successfully'))
+      toast.success(__('Profile updated successfully'))
     },
     onError: (err) => {
       toast.error(err.message + ': ' + err.messages[0])
