@@ -64,7 +64,7 @@ export default defineConfig(() => {
         // frappe-ui (`frappe-ui/internals`) than this app pins.
         '@framework/ui': path.resolve(
           import.meta.dirname,
-          '../../frappe/ui/src',
+          './vendor/framework-ui/src',
         ),
       },
       // ensure the linked framework package reuses the host app's single copy of each peer.

@@ -16,7 +16,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@framework/ui": "link:../../frappe/ui",
+    "@framework/ui": "link:./vendor/framework-ui",
     "@headlessui/vue": "^1.7.23",
     "@tiptap/core": "^3.26.0",
     "@tiptap/extension-paragraph": "^3.26.0",

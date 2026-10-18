@@ -27,3 +27,7 @@ AGENTS.md
 .claude
 .pi
 .patch
+
+# Local browser-test output
+cypress/screenshots/
+cypress/videos/

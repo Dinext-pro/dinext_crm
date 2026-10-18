@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "upstream": "frappe/crm",
+  "selected_tag": "v1.88.0",
+  "selected_commit": "0baa1e8ea462b92d2920bcfdc7a532a730329b6c",
+  "integration_branch": "main/v15",
+  "prior_dinext_commit": "398ce676f2dbc5201b44306a92df7d563a45ce4a",
+  "prior_vendor_snapshot": "f34ce8df687b3136796b4e55275130e51ad6e279",
+  "customizations": "docs/dinext-source-upgrade.md",
+  "automatic_sync": false
+}
