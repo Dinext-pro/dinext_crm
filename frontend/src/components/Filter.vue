@@ -1,12 +1,11 @@
 <template>
-  <Popover placement="bottom-end">
-    <template #target="{ togglePopover, close }">
+  <Popover side="bottom" align="end" bare>
+    <template #trigger="{ close }">
       <div class="flex items-center">
         <Button
           :label="__('Filter')"
           :class="filters?.size ? 'rounded-r-none' : ''"
           :iconLeft="FilterIcon"
-          @click="togglePopover"
         >
           <template v-if="filters?.size" #suffix>
             <div
@@ -25,9 +24,9 @@
         />
       </div>
     </template>
-    <template #body="{ close }">
+    <template #default="{ close }">
       <div
-        class="my-2 min-w-40 rounded-lg bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="my-2 min-w-40 rounded-6 bg-surface-elevation-2 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none"
       >
         <div class="min-w-72 p-2 sm:min-w-[400px]">
           <template v-if="filters?.size">
@@ -139,7 +138,7 @@
                   class="!text-ink-gray-5"
                   variant="ghost"
                   :label="__('Add Filter')"
-                  iconLeft="plus"
+                  iconLeft="lucide-plus"
                   @click="setOpen(!open)"
                 />
               </template>
@@ -173,6 +172,7 @@ import {
 } from 'frappe-ui'
 import { h, computed, onMounted } from 'vue'
 import { isMobileView } from '@/composables/settings'
+import { getFormat } from '@/utils'
 
 const typeCheck = ['Check']
 const typeLink = ['Link', 'Dynamic Link']
@@ -408,11 +408,11 @@ function getValueControl(f) {
       trigger: 'button',
       options: [
         {
-          label: 'Set',
+          label: __('Set'),
           value: 'set',
         },
         {
-          label: 'Not Set',
+          label: __('Not Set'),
           value: 'not set',
         },
       ],
@@ -448,7 +448,11 @@ function getValueControl(f) {
   } else if (typeNumber.includes(fieldtype)) {
     return h(FormControl, { type: 'number' })
   } else if (typeDate.includes(fieldtype) && operator == 'between') {
-    return h(DateRangePicker, { value: f.value, iconLeft: '' })
+    return h(DateRangePicker, {
+      value: f.value,
+      iconLeft: '',
+      format: getFormat('', '', true, false, false),
+    })
   } else if (typeDuration.includes(fieldtype)) {
     return h(DurationInput, { value: f.value })
   } else if (typeRating.includes(fieldtype)) {
@@ -461,6 +465,10 @@ function getValueControl(f) {
     return h(fieldtype == 'Date' ? DatePicker : DateTimePicker, {
       value: f.value,
       iconLeft: '',
+      format:
+        fieldtype == 'Date'
+          ? getFormat('', '', true, false, false)
+          : getFormat('', '', true, true, false),
     })
   } else {
     return h(FormControl, { type: 'text' })

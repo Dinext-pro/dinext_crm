@@ -7,11 +7,8 @@
       class="mb-2 title"
       :placeholder="__('Schedule a task...')"
     />
-    <TextEditor
-      ref="content"
-      variant="ghost"
+    <RichTextField
       editor-class="prose-sm h-[150px] text-ink-base overflow-auto"
-      :bubbleMenu="true"
       :content="task.description"
       :placeholder="__('Add description...')"
       @change="(val) => (task.description = val)"
@@ -67,10 +64,9 @@
       </Link>
       <DateTimePicker
         v-model="task.due_date"
-        class="datepicker w-36"
+        class="datepicker w-36 border-none"
         :placeholder="__('01/04/2024 11:30 PM')"
         :formatter="(date) => getFormat(date, '', true, true)"
-        input-class="border-none"
       />
     </div>
   </div>
@@ -80,9 +76,10 @@ import TaskStatusIcon from '@/components/Icons/TaskStatusIcon.vue'
 import TaskPriorityIcon from '@/components/Icons/TaskPriorityIcon.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Link from '@/components/Controls/Link.vue'
+import RichTextField from '@/components/RichTextField.vue'
 import { usersStore } from '@/stores/users'
 import { taskStatusOptions, taskPriorityOptions, getFormat } from '@/utils'
-import { TextEditor, Dropdown, Tooltip, DateTimePicker } from 'frappe-ui'
+import { Dropdown, Tooltip, DateTimePicker } from 'frappe-ui'
 import { reactive } from 'vue'
 
 const props = defineProps({

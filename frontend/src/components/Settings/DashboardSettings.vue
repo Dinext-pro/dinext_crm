@@ -7,9 +7,7 @@
         </h2>
         <p class="text-p-base text-ink-gray-6">
           {{
-            __(
-              'Configure how your dashboard calculates, formats, and displays key metrics, including forecasting, deal values, and currency settings',
-            )
+            __('Choose how the dashboard forecasts deals and shows currency.')
           }}
         </p>
       </div>
@@ -72,7 +70,7 @@
           <div class="text-p-sm text-ink-gray-5">
             {{
               __(
-                'Dashboard number cards & charts will show currency in the selected format. Once set, cannot be edited.',
+                "Currency for dashboard cards and charts. Can't be changed once set.",
               )
             }}
           </div>
@@ -99,7 +97,7 @@
             {{ __('Exchange Rate Provider') }}
           </div>
           <div class="text-p-sm text-ink-gray-5">
-            {{ __('Configure the Exchange Rate Provider for your CRM') }}
+            {{ __('Configure the exchange rate provider for your CRM') }}
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -136,13 +134,13 @@
           </div>
           <div class="text-p-sm text-ink-gray-5">
             {{
-              __('Access Key for {0}. Required for fetching exchange rates.', [
+              __('Access key for {0}. Required for fetching exchange rates.', [
                 providerMeta.label,
               ])
             }}
           </div>
           <div class="text-p-sm text-ink-gray-5">
-            {{ __('You can get your Access Key from ') }}
+            {{ __('You can get your access key from ') }}
             <a
               class="hover:underline text-ink-gray-7"
               :href="providerMeta.docsUrl"
@@ -214,7 +212,7 @@ function updateSettings() {
         return errorMessage.value
       }
       if (requiresAccessKey.value && !settings.doc.access_key) {
-        errorMessage.value = __('Please enter the {0} Access Key.', [
+        errorMessage.value = __('Please enter the {0} access key.', [
           providerMeta.value.label,
         ])
         return errorMessage.value
@@ -243,7 +241,7 @@ function setCurrency(value) {
       {
         label: __('Save'),
         variant: 'solid',
-        onClick: (close) => {
+        onClick: ({ close }) => {
           settings.doc.currency = value
           settings.save.submit(null, {
             onSuccess: () => {

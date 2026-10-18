@@ -20,7 +20,7 @@
         v-for="column in columns"
         :key="column.key"
         :item="column"
-        @columnWidthUpdated="onColumnWidthUpdated"
+        @columnWidthUpdated="(e) => onColumnWidthUpdated(e, column)"
       >
         <Button
           v-if="column.key == '_liked_by'"
@@ -197,17 +197,15 @@ import {
   formatDuration,
   sanitizeHTML,
 } from '@/utils'
+import { Avatar, Dropdown, Tooltip } from 'frappe-ui'
 import {
-  Avatar,
   ListView,
   ListHeader,
   ListHeaderItem,
   ListSelectBanner,
   ListRowItem,
   ListFooter,
-  Dropdown,
-  Tooltip,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 

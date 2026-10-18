@@ -2,12 +2,12 @@
   <div
     class="flex flex-col"
     :class="{
-      'border border-outline-gray-1 rounded-lg': hasTabs,
+      'border border-outline-gray-1 rounded-6': hasTabs,
       'border-outline-elevation-2': hasTabs,
     }"
   >
     <Tabs
-      v-model="tabIndex"
+      v-model="selectedTab"
       as="div"
       :tabs="processedTabs"
       :class="[
@@ -30,7 +30,7 @@
 import Section from '@/components/FieldLayout/Section.vue'
 import { useDocument } from '@/data/document'
 import { Tabs } from 'frappe-ui'
-import { ref, computed, provide } from 'vue'
+import { computed, provide, watch } from 'vue'
 
 const props = defineProps({
   tabs: { type: Array, default: () => [] },
@@ -42,7 +42,8 @@ const props = defineProps({
   context: { type: Object, default: null },
 })
 
-const tabIndex = ref(0)
+const tabIndex = defineModel('tabIndex', { type: Number, default: 0 })
+const tabName = defineModel('tabName', { type: String, default: '' })
 
 // The authoritative document name. Prefer the explicit docname prop (known
 // synchronously by the parent modal) over data.name, which is empty while the
@@ -78,6 +79,7 @@ const processedTabs = computed(() => {
       }
     })
     .filter((tab) => !tab.hidden)
+    .map((tab, i) => ({ ...tab, value: tab.name || String(i) }))
 })
 
 const hasTabs = computed(() => {
@@ -86,6 +88,40 @@ const hasTabs = computed(() => {
     (processedTabs.value.length == 1 && processedTabs.value[0].label)
   )
 })
+
+const selectedTab = computed({
+  get() {
+    const tabs = processedTabs.value
+    const namedTab =
+      tabName.value && tabs.find((tab) => tab.name === tabName.value)
+    return (namedTab || tabs[tabIndex.value])?.value
+  },
+  set(value) {
+    const index = processedTabs.value.findIndex((tab) => tab.value === value)
+    tabIndex.value = index
+    tabName.value = processedTabs.value[index]?.name || ''
+  },
+})
+
+watch(
+  processedTabs,
+  (tabs) => {
+    if (!tabs.length) {
+      tabIndex.value = 0
+      tabName.value = ''
+      return
+    }
+    if (tabName.value && tabs.some((tab) => tab.name === tabName.value)) {
+      tabIndex.value = tabs.findIndex((tab) => tab.name === tabName.value)
+      return
+    }
+    if (tabIndex.value >= tabs.length) {
+      tabIndex.value = tabs.length - 1
+    }
+    tabName.value = tabs[tabIndex.value]?.name || ''
+  },
+  { immediate: true },
+)
 
 provide(
   'data',

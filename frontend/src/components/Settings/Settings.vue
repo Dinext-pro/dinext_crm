@@ -2,13 +2,16 @@
   <Dialog
     v-model:open="showSettings"
     :size="'5xl'"
-    :disableOutsideClickToClose="disableSettingModalOutsideClick"
+    :dismissible="!disableSettingModalOutsideClick"
+    bare
     @close="activeSettingsPage = ''"
   >
-    <template #body>
+    <template #default>
+      <Dialog.Title class="sr-only">{{ __('Settings') }}</Dialog.Title>
       <div class="flex h-[calc(100vh_-_8rem)] bg-surface-gray-1">
         <div
-          class="flex flex-col m-1 rounded-l-lg w-56 shrink-0 bg-surface-gray-1 overflow-y-auto"
+          ref="sidebarContainer"
+          class="flex flex-col m-1 rounded-l-6 w-56 shrink-0 bg-surface-gray-1 overflow-y-auto"
         >
           <template v-for="(tab, i) in tabs" :key="tab.label">
             <div v-if="!tab.hideLabel && i != 0" class="mx-1 mb-0.5 mt-[5px]" />
@@ -23,6 +26,7 @@
                 v-for="item in tab.items"
                 :key="item.label"
                 :label="__(item.label)"
+                :data-page="item.label"
                 :active="activeTab?.label == item.label"
                 class="w-full"
                 :class="
@@ -49,7 +53,9 @@
 <script setup>
 import LucideLayoutDashboard from '~icons/lucide/layout-dashboard'
 import LucideNetwork from '~icons/lucide/network'
+import LucideWorkflow from '~icons/lucide/workflow'
 import MonitorCogIcon from '~icons/lucide/monitor-cog'
+import LucideTextCursorInput from '~icons/lucide/text-cursor-input'
 import SlidersIcon from '@/components/Icons/SlidersIcon.vue'
 import SparkleIcon from '@/components/Icons/SparkleIcon.vue'
 import WhatsAppIcon from '@/components/Icons/WhatsAppIcon.vue'
@@ -70,8 +76,11 @@ import LeadSyncSourcePage from '@/components/Settings/LeadSyncing/LeadSyncSource
 import DefaultsSettings from '@/components/Settings/DefaultsSettings.vue'
 import BrandSettings from '@/components/Settings/BrandSettings.vue'
 import HomeActions from '@/components/Settings/HomeActions.vue'
+import FormsSettings from '@/components/Settings/Forms/FormsSettings.vue'
 import GeneralSettings from '@/components/Settings/GeneralSettings.vue'
+import EnrichmentSettings from '@/components/Settings/Enrichment/EnrichmentSettings.vue'
 import DashboardSettings from '@/components/Settings/DashboardSettings.vue'
+import WorkflowAutomationPage from '@/components/Settings/WorkflowAutomations/WorkflowAutomationPage.vue'
 import EmailTemplatePage from '@/components/Settings/EmailTemplate/EmailTemplatePage.vue'
 import TelephonyPage from '@/components/Settings/Telephony/TelephonyPage.vue'
 import EmailConfig from '@/components/Settings/EmailConfig.vue'
@@ -84,9 +93,10 @@ import {
 } from '@/composables/settings'
 import { isWhatsappInstalled } from '@/composables/whatsapp'
 import { Dialog, Avatar, SidebarItem } from 'frappe-ui'
-import { ref, markRaw, computed, watch, h } from 'vue'
+import { ref, markRaw, computed, watch, h, nextTick } from 'vue'
 import AssignmentRulePage from './AssignmentRules/AssignmentRulePage.vue'
 import ShieldCheck from '~icons/lucide/shield-check'
+import LucideZap from '~icons/lucide/zap'
 import SlaConfig from './Sla/SlaConfig.vue'
 
 const { isManager, getUser } = usersStore()
@@ -185,6 +195,12 @@ const tabs = computed(() => {
       label: __('Automation & Rules'),
       items: [
         {
+          label: __('Workflow Automations'),
+          icon: LucideWorkflow,
+          component: markRaw(WorkflowAutomationPage),
+          condition: () => window.has_automation_engine,
+        },
+        {
           label: __('Assignment Rules'),
           icon: markRaw(h(SettingsIcon2, { class: 'rotate-90' })),
           component: markRaw(AssignmentRulePage),
@@ -193,6 +209,16 @@ const tabs = computed(() => {
           label: __('SLA Policies'),
           icon: markRaw(h(ShieldCheck)),
           component: markRaw(SlaConfig),
+        },
+        {
+          label: __('Forms'),
+          component: markRaw(FormsSettings),
+          icon: markRaw(LucideTextCursorInput),
+        },
+        {
+          label: __('Enrichment'),
+          component: markRaw(EnrichmentSettings),
+          icon: markRaw(LucideZap),
         },
       ],
       condition: () => isManager(),
@@ -251,6 +277,7 @@ const tabs = computed(() => {
 })
 
 const activeTab = ref(tabs.value[0].items[0])
+const sidebarContainer = ref(null)
 
 function setActiveTab(tabName) {
   activeTab.value =
@@ -262,5 +289,19 @@ function setActiveTab(tabName) {
     tabs.value[0].items[0]
 }
 
-watch(activeSettingsPage, (activePage) => setActiveTab(activePage))
+// Scroll the settings sidebar so the active page is in view (e.g. when opened
+// deep-linked from onboarding, so the user sees where they landed).
+function scrollActiveIntoView() {
+  nextTick(() => {
+    const el = sidebarContainer.value?.querySelector(
+      `[data-page="${activeTab.value?.label}"]`,
+    )
+    el?.scrollIntoView({ block: 'nearest' })
+  })
+}
+
+watch(activeSettingsPage, (activePage) => {
+  setActiveTab(activePage)
+  scrollActiveIntoView()
+})
 </script>

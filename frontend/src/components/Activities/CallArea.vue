@@ -21,7 +21,7 @@
       </div>
     </div>
     <div
-      class="flex flex-col gap-2 border cursor-pointer border-outline-elevation-2 rounded-md bg-surface-elevation-1 px-3 py-2.5 text-ink-gray-9"
+      class="flex flex-col gap-2 border cursor-pointer border-outline-elevation-2 rounded-5 bg-surface-elevation-1 px-3 py-2.5 text-ink-gray-9"
       @click="showCallLogDetailModal = true"
     >
       <div class="flex items-center justify-between">
@@ -72,7 +72,7 @@
           </template>
         </Badge>
         <Badge
-          :label="statusLabelMap[call.status]"
+          :label="getCallStatusLabel(call.status, call.type)"
           :theme="statusColorMap[call.status]"
         />
       </div>
@@ -102,7 +102,7 @@ import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import AudioPlayer from '@/components/Activities/AudioPlayer.vue'
 import CallLogDetailModal from '@/components/Modals/CallLogDetailModal.vue'
 import TimelineTimestamp from '@/components/Activities/TimelineTimestamp.vue'
-import { statusLabelMap, statusColorMap } from '@/utils/callLog.js'
+import { getCallStatusLabel, statusColorMap } from '@/utils/callLog.js'
 import { formatDate } from '@/utils'
 import { Avatar, Badge, createResource } from 'frappe-ui'
 import { reactive, ref } from 'vue'

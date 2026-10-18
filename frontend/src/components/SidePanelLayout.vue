@@ -18,6 +18,7 @@
               <slot name="actions" v-bind="{ section }">
                 <Button
                   v-if="section.showEditButton"
+                  :tooltip="__('Edit Fields Layout')"
                   variant="ghost"
                   class="w-7 mr-2"
                   :icon="EditIcon"
@@ -44,7 +45,7 @@
                     <Tooltip
                       v-if="!['Button', 'HTML'].includes(field.fieldtype)"
                       :text="__(field.label)"
-                      :hoverDelay="1"
+                      :hoverDelay="1000"
                     >
                       <div
                         class="w-[35%] min-w-20 shrink-0 flex items-center gap-0.5"
@@ -59,7 +60,7 @@
                             (field.mandatory_depends_on &&
                               field.mandatory_via_depends_on)
                           "
-                          class="text-ink-red-5"
+                          class="text-ink-red-4"
                         >
                           *
                         </div>
@@ -174,7 +175,7 @@
                           </template>
                           <template #item-label="{ option }">
                             <Tooltip :text="option.value">
-                              <div class="cursor-pointer">
+                              <div class="cursor-pointer text-ink-gray-9">
                                 {{ getUser(option.value).full_name }}
                               </div>
                             </Tooltip>
@@ -201,7 +202,7 @@
                           class="form-control"
                         >
                           <TimePicker
-                            :value="doc[field.fieldname]"
+                            :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', false, true, false)"
                             :placeholder="field.placeholder"
                             @change="(v) => fieldChange(v, field)"
@@ -212,10 +213,11 @@
                           class="form-control"
                         >
                           <DateTimePicker
-                            :value="doc[field.fieldname]"
+                            :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', true, true, false)"
                             :placeholder="field.placeholder"
-                            placement="left-start"
+                            side="left"
+                            align="start"
                             @change="(v) => fieldChange(v, field)"
                           />
                         </div>
@@ -224,10 +226,11 @@
                           class="form-control"
                         >
                           <DatePicker
-                            :value="doc[field.fieldname]"
+                            :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', true, false, false)"
                             :placeholder="field.placeholder"
-                            placement="left-start"
+                            side="left"
+                            align="start"
                             @change="(v) => fieldChange(v, field)"
                           />
                         </div>
@@ -303,6 +306,7 @@
                         <Rating
                           v-else-if="field.fieldtype === 'Rating'"
                           class="pl-[10px]"
+                          size="md"
                           :step="0.5"
                           :modelValue="
                             (doc[field.fieldname] || 0) * ratingMax(field)
@@ -379,8 +383,13 @@
                             field.link &&
                             doc[field.fieldname]
                           "
-                          class="h-4 w-4 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
+                          class="relative -left-[13px] h-4 w-4 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
                           @click.stop="field.link(doc[field.fieldname])"
+                        />
+                        <ArrowUpRightIcon
+                          v-else-if="isExternalUrl(doc[field.fieldname])"
+                          class="relative -left-[13px] h-4 w-4 shrink-0 cursor-pointer text-ink-gray-5 hover:text-ink-gray-8"
+                          @click.stop="openExternalUrl(doc[field.fieldname])"
                         />
                         <EditIcon
                           v-if="
@@ -432,6 +441,7 @@ import { getMeta } from '@/stores/meta'
 import { parseLinkFilters } from '@/utils/fieldTransforms'
 import { usersStore } from '@/stores/users'
 import { isMobileView } from '@/composables/settings'
+import { createDocument } from '@/composables/document'
 import {
   getFormat,
   evaluateDependsOnValue,
@@ -531,6 +541,17 @@ function parsedField(field) {
     })
   }
 
+  if (field.fieldtype === 'Link' && field.options !== 'User') {
+    if (!field.create) {
+      field.create = (value, close) => {
+        const callback = (d) => {
+          if (d) fieldChange(d.name, field)
+        }
+        createDocument(field.options, value, close, callback)
+      }
+    }
+  }
+
   const read_only_via_depends_on = evaluateDependsOnValue(
     field.read_only_depends_on,
     doc.value,
@@ -562,6 +583,14 @@ function parsedField(field) {
 
 const instance = getCurrentInstance()
 const attrs = instance?.vnode?.props ?? {}
+
+function isExternalUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value.trim())
+}
+
+function openExternalUrl(value) {
+  window.open(value.trim(), '_blank', 'noopener,noreferrer')
+}
 
 async function fieldChange(value, df) {
   if (props.preview) return
@@ -694,7 +723,7 @@ function checkChange(value, df) {
   background-color: var(--surface-gray-1);
 }
 
-:deep(input.checkbox-control) {
+:deep(.checkbox-control [data-slot='control']) {
   margin-left: 9px;
   cursor: pointer;
 }
@@ -716,6 +745,17 @@ function checkChange(value, df) {
 :deep(.dropdown-button) {
   padding-left: 9px !important;
   padding-right: 9px !important;
+}
+
+/* Link fields sit 4px right of the inputs; pull them back without moving the chevron. */
+:deep(.select-text button) {
+  margin-left: -4px;
+  width: calc(100% + 4px);
+}
+
+/* Link chevrons line up with the Select chevrons. */
+:deep(.form-control .lucide-chevron-down.absolute) {
+  right: 3px;
 }
 
 .sections .section .column {

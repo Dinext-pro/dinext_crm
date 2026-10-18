@@ -39,7 +39,7 @@
             <Badge
               v-if="isDirty"
               :variant="'subtle'"
-              :theme="'orange'"
+              :theme="'amber'"
               size="sm"
               :label="__('Not Saved')"
             />
@@ -112,7 +112,7 @@ function save() {
 
   user.save.submit(null, {
     onSuccess: () => {
-      toast.success(__('Preferences Updated Successfully'))
+      toast.success(__('Preferences updated successfully'))
       if (refreshRequired.value) {
         window.location.reload()
       }

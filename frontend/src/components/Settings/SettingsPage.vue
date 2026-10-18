@@ -22,7 +22,7 @@
             v-if="data.isDirty"
             :label="__('Not Saved')"
             variant="subtle"
-            theme="orange"
+            theme="amber"
           />
         </div>
       </div>
@@ -65,7 +65,7 @@ import { computed } from 'vue'
 const props = defineProps({
   doctype: { type: String, required: true },
   title: { type: String, default: '' },
-  successMessage: { type: String, default: 'Updated Successfully' },
+  successMessage: { type: String, default: 'Updated successfully' },
   back: { type: Function, default: null },
 })
 
